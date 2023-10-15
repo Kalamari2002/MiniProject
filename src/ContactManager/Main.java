@@ -2,8 +2,6 @@ package ContactManager;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -19,16 +17,19 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
+
 /**
  * TODO 1 [HIGH]: Delete contacts (In Progress)
  *        After deleting a contact, the first contact name in the list automatically gets selected for change.
  *        There should be a way to stop this...
- * TODO 2 [HIGH]: Save contacts
- * TODO 3 [MEDIUM]: Test what happens when u select a non png/jpg/etc. file for a profile picture
- * TODO 4 [LOW]: Make a dropdown view for each contact
- * TODO 5 [LOW]: Move Add button to the top
- * TODO 6 [LOW]: Remove footer buttons
- * TODO 7 [LOW]: Decide what to do with the sort button (is it gonna sort automatically after every addition?
+ * TODO 2 [MEDIUM]: Test what happens when u select a non png/jpg/etc. file for a profile picture
+ * TODO 3 [LOW]: Make a dropdown view for each contact
+ * TODO 4 [LOW]: Move Add button to the top
+ * TODO 5 [LOW]: Remove footer buttons
+ * TODO 6 [LOW]: Decide what to do with the sort button (is it gonna sort automatically after every addition?
+ * TODO 7 [LOW]: Decide if you wanna implement the load function still
  * Is it just gonna be a sort button?)
  */
 
@@ -63,7 +64,7 @@ class ContactList extends VBox {
      */
     public void loadContacts() throws IOException{
         FileReader fr;
-        String pathName = "resources/contacts.txt";
+        String pathName = "resources/contacts.csv";
 
         try {
             fr = new FileReader(pathName);
@@ -76,36 +77,52 @@ class ContactList extends VBox {
         while(br.ready()){  //Get each line and make a contact out of it
 
             String currLine = br.readLine();    //Read a line
+            String[] data = currLine.split(",");
             Contact toAdd = new Contact();
-            toAdd.getContactName().setText(currLine);  //Set the new contact to have the read line as its name
+
+            toAdd.getContactName().setText(data[0].substring(1, data[0].length() - 1));  //Set the new contact to have the read line as its name
+            toAdd.getPhoneNum().setText(data[1].substring(1, data[1].length() - 1));
+            toAdd.getEmail().setText(data[2].substring(1, data[2].length() - 1));
+            try {
+                File imgFile = new File(data[3].substring(1, data[3].length() - 1));
+                Image pic = new Image(imgFile.toURI().toString());
+                toAdd.getProfilePic().setImage(pic);
+            } catch (Exception e) {
+                System.out.println("Couldn't find profile pitcure");
+            }
+
             this.getChildren().add(toAdd); 
         }
         this.updateContactIndices();
 
         fr.close();
         br.close();
+        System.out.println("LOAD");
     }
-
     /*
      * Save contacts to a file called "contacts.txt"
      */
     public void saveContacts() throws IOException{
-        FileWriter fw;
         String pathName = "resources/contacts.csv";
-        try {
-            fw = new FileWriter(pathName);
-        } catch (Exception e) {
-            throw new IOException();
-        }
+        File outputFile = new File(pathName);
+        FileWriter fw = new FileWriter(outputFile);
+
+        fw = new FileWriter(outputFile);
 
         for (int i = 0; i < this.getChildren().size(); i++) {   //Iterate thru each contact
             if (this.getChildren().get(i) instanceof Contact) {    //Set name to a contact format
-                String name = ((Contact)this.getChildren().get(i)).getContactName().getText();
-                fw.write(name + "\n");
+                String name = "\"" + ((Contact)this.getChildren().get(i)).getContactName().getText() + "\"";
+                String phone = "\"" + ((Contact)this.getChildren().get(i)).getPhoneNum().getText() + "\"";
+                String mail = "\"" + ((Contact)this.getChildren().get(i)).getEmail().getText() + "\"";
+                String image = "\"" + ((Contact)this.getChildren().get(i)).getProfilePic().getImage().getUrl() + "\"";
+                
+                String line = name + "," + phone + "," + mail + "," + image + "\n";
+                fw.write(line);
             }
         }
 
         fw.close();
+        System.out.print("SAVED!");
     }
 
     /*
@@ -161,7 +178,7 @@ class Footer extends HBox {
         saveButton = new Button("Save Contacts");
         saveButton.setStyle(defaultButtonStyle);
 
-        this.getChildren().addAll(addButton, clearButton, loadButton, saveButton, sortButton); // adding buttons to footer
+        this.getChildren().addAll(addButton, saveButton, sortButton); // adding buttons to footer
         this.setAlignment(Pos.CENTER); // aligning the buttons to center
 
     }
@@ -253,7 +270,6 @@ class AppFrame extends BorderPane{
 
     public void addListeners()
     {
-
         // Add button functionality
         addButton.setOnAction(e -> {
             // Create a new contact
@@ -274,11 +290,6 @@ class AppFrame extends BorderPane{
             contactList.updateContactIndices();
         });
         
-        // // Clear finished contacts
-        // clearButton.setOnAction(e -> {
-        //     contactList.removeContact();
-        // });
-
         sortButton.setOnAction(e -> {
             contactList.sortContacts();
         });

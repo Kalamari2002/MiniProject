@@ -8,11 +8,16 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+//import javafx.scene.shape.Path;
 import javafx.scene.control.Label;
 
 import javafx.scene.text.TextAlignment;
 import javafx.geometry.Insets;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 class Contact extends VBox implements Comparable<Contact> {
 
@@ -182,12 +187,15 @@ class Contact extends VBox implements Comparable<Contact> {
 
     public void changeProfilePic(Stage mainStage){
         fileChooser.getExtensionFilters().add(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg"));
-
         File selectedFile = fileChooser.showOpenDialog(mainStage);
         if (selectedFile != null) {
-            Image image = new Image(selectedFile.toURI().toString());
-            
-            profilePic.setImage(image);
+            try {
+                Image image = new Image(selectedFile.toURI().toString());
+                profilePic.setImage(image);
+            } catch (Exception e) {
+                Image image = new Image(new File("resources/icons/anonymous.png").toURI().toString());
+                profilePic.setImage(image);
+            }
         }
     }
 
