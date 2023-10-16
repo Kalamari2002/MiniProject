@@ -24,18 +24,17 @@ import javafx.scene.layout.VBox;
  * TODO 1 [HIGH]: Delete contacts (In Progress)
  *        After deleting a contact, the first contact name in the list automatically gets selected for change.
  *        There should be a way to stop this...
- * TODO 2 [MEDIUM]: Test what happens when u select a non png/jpg/etc. file for a profile picture
- * TODO 3 [LOW]: Make a dropdown view for each contact
- * TODO 4 [LOW]: Move Add button to the top
- * TODO 5 [LOW]: Remove footer buttons
- * TODO 6 [LOW]: Decide what to do with the sort button (is it gonna sort automatically after every addition?
- * TODO 7 [LOW]: Decide if you wanna implement the load function still
+ * TODO 2 [LOW]: Make a dropdown view for each contact
+ * TODO 3 [LOW]: Move Add button to the top
+ * TODO 4 [LOW]: Remove footer buttons
+ * TODO 5 [LOW]: Decide what to do with the sort button (is it gonna sort automatically after every addition? 
  * Is it just gonna be a sort button?)
+ * TODO 6 [LOW]: Decide if you wanna implement the load function still
  */
 
 class ContactList extends VBox {
 
-
+//
     ContactList() {
         this.setSpacing(10); // sets spacing between contacts
         this.setPrefSize(500, 560);
