@@ -52,7 +52,6 @@ class ContactList extends VBox {
     }
 
     public void removeContact(Contact toRemove) {
-        //this.getChildren().removeIf(contact -> contact instanceof Contact && ((Contact) contact).isMarkedDone());
         this.getChildren().remove(toRemove);
         this.updateContactIndices();
     }
