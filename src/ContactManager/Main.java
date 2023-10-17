@@ -20,25 +20,14 @@ import java.io.IOException;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 
-/**
- * TODO 1 [HIGH]: Delete contacts (In Progress)
- *        After deleting a contact, the first contact name in the list automatically gets selected for change.
- *        There should be a way to stop this...
- * TODO 2 [LOW]: Make a dropdown view for each contact
- * TODO 3 [LOW]: Move Add button to the top
- * TODO 4 [LOW]: Remove footer buttons
- * TODO 5 [LOW]: Decide what to do with the sort button (is it gonna sort automatically after every addition? 
- * Is it just gonna be a sort button?)
- * TODO 6 [LOW]: Decide if you wanna implement the load function still
- */
-
 class ContactList extends VBox {
-
+    Stage mainStage;
 //
-    ContactList() {
+    ContactList(Stage primaryStage) {
         this.setSpacing(10); // sets spacing between contacts
         this.setPrefSize(500, 560);
         this.setStyle("-fx-background-color: #F0F8FF;");
+        this.mainStage = primaryStage;
     }
 
     public void updateContactIndices() {
@@ -81,13 +70,19 @@ class ContactList extends VBox {
             toAdd.getContactName().setText(data[0].substring(1, data[0].length() - 1));  //Set the new contact to have the read line as its name
             toAdd.getPhoneNum().setText(data[1].substring(1, data[1].length() - 1));
             toAdd.getEmail().setText(data[2].substring(1, data[2].length() - 1));
-            try {
-                File imgFile = new File(data[3].substring(1, data[3].length() - 1));
-                Image pic = new Image(imgFile.toURI().toString());
-                toAdd.getProfilePic().setImage(pic);
-            } catch (Exception e) {
-                System.out.println("Couldn't find profile pitcure");
-            }
+
+            File imgFile = new File("resources/icons/anonymous.png");
+            Image pic = new Image(imgFile.toURI().toString());
+            toAdd.getProfilePic().setImage(pic);
+
+            Button editButton = toAdd.getEditButton();
+            editButton.setOnAction(e1 -> {
+                toAdd.changeProfilePic(this.mainStage);
+            });
+            Button deleteButton = toAdd.getDeleteButton();
+            deleteButton.setOnAction(e1 -> {
+                this.removeContact(toAdd);
+            });
 
             this.getChildren().add(toAdd); 
         }
@@ -103,18 +98,21 @@ class ContactList extends VBox {
     public void saveContacts() throws IOException{
         String pathName = "resources/contacts.csv";
         File outputFile = new File(pathName);
-        FileWriter fw = new FileWriter(outputFile);
+        FileWriter fw;
 
-        fw = new FileWriter(outputFile);
-
+        try {
+            fw = new FileWriter(outputFile);
+        } catch (Exception e) {
+            throw new IOException();
+        }
+        //fw = new FileWriter(outputFile);
+        
         for (int i = 0; i < this.getChildren().size(); i++) {   //Iterate thru each contact
             if (this.getChildren().get(i) instanceof Contact) {    //Set name to a contact format
                 String name = "\"" + ((Contact)this.getChildren().get(i)).getContactName().getText() + "\"";
                 String phone = "\"" + ((Contact)this.getChildren().get(i)).getPhoneNum().getText() + "\"";
                 String mail = "\"" + ((Contact)this.getChildren().get(i)).getEmail().getText() + "\"";
-                String image = "\"" + ((Contact)this.getChildren().get(i)).getProfilePic().getImage().getUrl() + "\"";
-                
-                String line = name + "," + phone + "," + mail + "," + image + "\n";
+                String line = name + "," + phone + "," + mail + "," + "\n";
                 fw.write(line);
             }
         }
@@ -152,7 +150,6 @@ class ContactList extends VBox {
 class Footer extends HBox {
 
     private Button addButton;
-    private Button clearButton;
     private Button sortButton;
     private Button loadButton;
     private Button saveButton;
@@ -167,8 +164,6 @@ class Footer extends HBox {
 
         addButton = new Button("Add Contact"); // text displayed on add button
         addButton.setStyle(defaultButtonStyle); // styling the button
-        clearButton = new Button("Clear finished"); // text displayed on clear contacts button
-        clearButton.setStyle(defaultButtonStyle);
         sortButton = new Button("Sort Contacts (By Name)");
         sortButton.setStyle(defaultButtonStyle);
         loadButton = new Button("Load Contacts");
@@ -176,17 +171,13 @@ class Footer extends HBox {
         saveButton = new Button("Save Contacts");
         saveButton.setStyle(defaultButtonStyle);
 
-        this.getChildren().addAll(addButton, saveButton, sortButton); // adding buttons to footer
+        this.getChildren().addAll(addButton, saveButton, loadButton, sortButton); // adding buttons to footer
         this.setAlignment(Pos.CENTER); // aligning the buttons to center
 
     }
 
     public Button getAddButton() {
         return addButton;
-    }
-
-    public Button getClearButton() {
-        return clearButton;
     }
 
     public Button getSortButton(){
@@ -208,7 +199,7 @@ class Header extends HBox {
         this.setPrefSize(500, 60); // Size of the header
         this.setStyle("-fx-background-color: #F0F8FF;");
 
-        Text titleText = new Text("In your walls"); // Text of the Header
+        Text titleText = new Text("Contact List"); // Text of the Header
         titleText.setStyle("-fx-font-weight: bold; -fx-font-size: 20;");
         this.getChildren().add(titleText);
         this.setAlignment(Pos.CENTER); // Align the text to the Center
@@ -223,7 +214,6 @@ class AppFrame extends BorderPane{
     private ScrollPane scroller;
 
     private Button addButton;
-    private Button clearButton;
     private Button sortButton;
     private Button loadButton;
     private Button saveButton;
@@ -237,7 +227,7 @@ class AppFrame extends BorderPane{
         header = new Header();
 
         // Create a contactlist Object to hold the contacts
-        contactList = new ContactList();
+        contactList = new ContactList(mainStage);
         
         // Initialise the Footer Object
         footer = new Footer();
@@ -257,7 +247,6 @@ class AppFrame extends BorderPane{
 
         // Initialise Button Variables through the getters in Footer
         addButton = footer.getAddButton();
-        clearButton = footer.getClearButton();
         sortButton = footer.getSortButton();
         loadButton = footer.getLoadButton();
         saveButton = footer.getSaveButton();

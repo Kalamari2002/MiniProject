@@ -14,10 +14,7 @@ import javafx.scene.control.Label;
 import javafx.scene.text.TextAlignment;
 import javafx.geometry.Insets;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 
 class Contact extends VBox implements Comparable<Contact> {
 
@@ -40,14 +37,11 @@ class Contact extends VBox implements Comparable<Contact> {
 
     private FileChooser fileChooser = new FileChooser();
 
-    private boolean selected;
-
     Contact() {
 
         this.setPrefSize(500, 200); // sets size of Contact
         this.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0; -fx-font-weight: bold;"); // sets background color of contact
         //selected = false;
-        selected = true;    // For testing sake, every contact will be selected by default for now 
         index = new Label();
         index.setText(""); // create index label
         index.setPrefSize(40, 20); // set size of Index label
@@ -127,7 +121,7 @@ class Contact extends VBox implements Comparable<Contact> {
         String defaultButtonStyle = "-fx-font-style: italic; -fx-background-color: #FFFFFF;  -fx-font-weight: bold; -fx-font: 11 arial;";
         String dangerousButtonStyle = "-fx-font-style: italic; -fx-background-color: #ee6b6e;  -fx-font-weight: bold; -fx-font: 11 arial;";
 
-        editButton = new Button("Edit"); // text displayed on add button
+        editButton = new Button("Edit Profile Pic"); // text displayed on add button
         editButton.setStyle(defaultButtonStyle); // styling the button
         editButton.setPrefSize(200,50);
         //(top/right/bottom/left)
@@ -173,10 +167,6 @@ class Contact extends VBox implements Comparable<Contact> {
         return this.profilePic;
     }
 
-    public boolean isSelectedDone() {
-        return this.selected;
-    }
-
     public Button getEditButton(){
         return this.editButton;
     }
@@ -196,24 +186,6 @@ class Contact extends VBox implements Comparable<Contact> {
                 Image image = new Image(new File("resources/icons/anonymous.png").toURI().toString());
                 profilePic.setImage(image);
             }
-        }
-    }
-
-    public void toggleSelected() {
-        
-        selected = true;
-        this.setStyle("-fx-border-color: #000000; -fx-border-width: 0; -fx-font-weight: bold;"); // remove border of contact
-        for (int i = 0; i < this.getChildren().size(); i++) {
-            this.getChildren().get(i).setStyle("-fx-background-color: #BCE29E; -fx-border-width: 0;"); // change color of contact to green
-        }
-    }
-
-    public void undoSelected(){
-        selected = false; 
-        this.setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0; -fx-font-weight: bold;"); // sets background color of contact
-
-        for (int i = 0; i < this.getChildren().size(); i++) {
-            this.getChildren().get(i).setStyle("-fx-background-color: #DAE5EA; -fx-border-width: 0;"); // change color of contact to green
         }
     }
 
